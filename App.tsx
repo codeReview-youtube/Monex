@@ -10,12 +10,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   NativeModules,
+  LogBox,
 } from 'react-native';
+
+LogBox.ignoreAllLogs(true);
 
 const API_KEY = '';
 const BASE_URL = 'https://api.apilayer.com/exchangerates_data';
-const {RNSharedWidget} = NativeModules
-
+const {RNSharedWidget} = NativeModules;
 
 export const App: FC = () => {
   const [from, setFrom] = useState('EUR');
@@ -24,10 +26,13 @@ export const App: FC = () => {
   const [loading, setLoading] = useState(false);
   const [focusItem, setFocusItem] = useState('');
 
-  const [result, setResult] = useState(0);
+  const [result, setResult] = useState('0');
 
   useEffect(() => {
-    if (result === 0) getData();
+    if (result === '0') {
+      // getData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
   const getData = async () => {
@@ -42,44 +47,31 @@ export const App: FC = () => {
             apiKey: API_KEY,
             'Content-Type': 'application/json',
           },
-        },
+        }
       );
       if (request.status === 200) {
         response = await request.json();
       }
       if (response && response.result) {
-        /** result scheme of api response 
-         * {
-          "date": "2023-02-28",
-          "info": {
-            "rate": 1.058762,
-            "timestamp": 1677612543
-          },
-          "query": {
-            "amount": 100,
-            "from": "EUR",
-            "to": "USD"
-          },
-          "result": 105.8762,
-          "success": true
-        }
-        */
         setResult((response.result as any).toFixed(2));
         setLoading(false);
-        RNSharedWidget.setData('convertorMonex', 
-        JSON.stringify({
-          from,
-          to,
-          amount: Number(amount),
-          result: response.result ?? 0,
-        }), 
-        (status: number | null) => {
-          console.log('------------------------------');
-          console.log("Status: ", status);
-          console.log('------------------------------');
-        });
+        RNSharedWidget.setData(
+          'convertorMonex',
+          JSON.stringify({
+            from,
+            to,
+            amount: Number(amount),
+            result: response.result.toFixed(2),
+          }),
+          (_status: number | null) => {
+            // log callback in case of success/error
+          }
+        );
       }
-    } catch (e) {}
+    } catch (e) {
+      setLoading(false);
+      setResult(`error:  ${JSON.stringify(e)}`);
+    }
   };
 
   const onSubmit = () => {
@@ -104,13 +96,13 @@ export const App: FC = () => {
             <TextInput
               placeholder="100"
               value={amount}
-              onChange={txt => setAmount(txt as any)}
+              onChangeText={txt => setAmount(txt)}
               style={[styles.input, getColor('amount')]}
               onFocus={() => setFocusItem('amount')}
               focusable={focusItem === 'amount'}
             />
             <TextInput
-              onChange={txt => setFrom(txt as any)}
+              onChangeText={txt => setFrom(txt)}
               value={from}
               placeholder="EUR"
               style={[styles.input, getColor('from')]}
@@ -119,7 +111,7 @@ export const App: FC = () => {
             />
             <TextInput
               value={to}
-              onChange={txt => setTo(txt as any)}
+              onChangeText={txt => setTo(txt)}
               placeholder="USD"
               style={[styles.input, getColor('to')]}
               onFocus={() => setFocusItem('to')}

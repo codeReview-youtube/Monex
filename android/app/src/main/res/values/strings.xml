@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Monex</string>
+    <string name="appwidget_text">Monex</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">Get easy access to Monex conversion</string>
 </resources>
