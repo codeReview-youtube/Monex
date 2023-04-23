@@ -1,8 +1,9 @@
 # Monex
 
+ANDROID & iOS widgets from scratch implementation with React-Native
 
-iOS widget creation with React Native
+---
 
+## License
 
-## License 
 MIT
